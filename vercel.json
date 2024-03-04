@@ -1,0 +1,8 @@
+{
+    "function": {
+        "app/api/route.js": {
+            "memory": 4000,
+            "maxDuration": 180
+        }
+    }
+}

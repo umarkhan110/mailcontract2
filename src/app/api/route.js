@@ -341,17 +341,17 @@ Please also see below 3 references from similar HOAs
     </div>`,
   }
 };
-// const chromiumPack = "https://github.com/Sparticuz/chromium/releases/download/v121.0.0/chromium-v121.0.0-pack.tar";
+const chromiumPack = "https://github.com/Sparticuz/chromium/releases/download/v121.0.0/chromium-v121.0.0-pack.tar";
 const generatePdf = async (htmlContent) => {
-  // const browser = await puppeteer.launch({
-  //   args: chromium.args,
-  //   executablePath: await chromium.executablePath(chromiumPack),
-  //   headless: true,
-  // });
-  const token = process.env.NEXT_PUBLIC_BROWSERLESS_TOKEN;
-  const browser = await puppeteer.connect({
-    browserWSEndpoint: `wss://chrome.browserless.io?token=${token}`
+  const browser = await puppeteer.launch({
+    args: chromium.args,
+    executablePath: await chromium.executablePath(chromiumPack),
+    headless: true,
   });
+  // const token = process.env.NEXT_PUBLIC_BROWSERLESS_TOKEN;
+  // const browser = await puppeteer.connect({
+  //   browserWSEndpoint: `wss://chrome.browserless.io?token=${token}`
+  // });
   
   // const browser = await puppeteer.launch();
   const page = await browser.newPage();
@@ -364,8 +364,8 @@ console.log(page, "page")
   return pdfBuffer;
   
 };
-export const maxDuration = 300; // This function can run for a maximum of 5 seconds
-export const dynamic = 'force-dynamic';
+// export const maxDuration = 300; 
+// export const dynamic = 'force-dynamic';
 export async function POST(req) {
   const data = await req.json();
   if (

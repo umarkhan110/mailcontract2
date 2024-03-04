@@ -355,9 +355,10 @@ const generatePdf = async (htmlContent) => {
   
   // const browser = await puppeteer.launch();
   const page = await browser.newPage();
-
+console.log(page, "page")
   await page.setContent(htmlContent);
   const pdfBuffer = await page.pdf();
+  console.log(pdfBuffer, "page")
 
   await browser.close();
   return pdfBuffer;
@@ -365,7 +366,6 @@ const generatePdf = async (htmlContent) => {
 
 export async function POST(req) {
   const data = await req.json();
-  console.log(data)
   if (
     !data ||
     !data?.to_name ||

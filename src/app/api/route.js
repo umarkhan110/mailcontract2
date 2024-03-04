@@ -348,7 +348,10 @@ const generatePdf = async (htmlContent) => {
   //   executablePath: await chromium.executablePath(chromiumPack),
   //   headless: true,
   // });
-  const browser = await puppeteer.launch();
+  const browser = await puppeteer.connect({
+    browserWSEndpoint: 'wss://chrome.browserless.io'
+  });
+  // const browser = await puppeteer.launch();
   const page = await browser.newPage();
 
   await page.setContent(htmlContent);

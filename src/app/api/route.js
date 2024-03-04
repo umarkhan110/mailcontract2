@@ -348,7 +348,6 @@ const generatePdf = async (htmlContent) => {
   //   executablePath: await chromium.executablePath(chromiumPack),
   //   headless: true,
   // });
-  try {
   const token = process.env.NEXT_PUBLIC_BROWSERLESS_TOKEN;
   const browser = await puppeteer.connect({
     browserWSEndpoint: `wss://chrome.browserless.io?token=${token}`
@@ -363,16 +362,7 @@ console.log(page, "page")
 
   await browser.close();
   return pdfBuffer;
-} catch (error) {
-  if (!res.headersSent) {
-    res.status(400).send(error.message);
-  }
-} finally {
-  if (browser) {
-    browser.close();
-  }
-}
-
+  
 };
 
 export async function POST(req) {

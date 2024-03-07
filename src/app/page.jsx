@@ -6,24 +6,17 @@ export default function Home() {
   });
 
   const main = async () => {
-    const msg = await anthropic.messages.create({
-      model: "claude-3-opus-20240229",
-      max_tokens: 1000,
-      temperature: 0,
-      system: "Translate classical Armenian language to modern Armenian language",
-      messages: [
-        {
-          "role": "user",
-          "content": [
-            {
-              "type": "text",
-              "text": "Ինձ մի բաժակ ջուր տուր"
-            }
-          ]
-        }
-      ]
-    });
-    console.log(msg);
+    async function main() {
+      const message = await anthropic.messages.create({
+        max_tokens: 1024,
+        messages: [{ role: 'user', content: 'Hello, Claude' }],
+        model: 'claude-3-opus-20240229',
+      });
+    
+      console.log(message.content);
+    }
+    
+    main();
   };
   return (
     <>

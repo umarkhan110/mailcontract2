@@ -21,7 +21,7 @@ const SignUp = () => {
       sessionStorage.setItem("access-token", res.user.accessToken);
       // setEmail('');
       // setPassword('')
-      router.push("/");
+      router.push("/sign-in");
     } catch (error) {
       alert(error.message);
       console.error("Error signing up:", error.message);

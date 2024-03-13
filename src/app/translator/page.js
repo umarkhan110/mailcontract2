@@ -2,10 +2,10 @@
 import { useEffect, useState } from "react";
 import { translate } from "../service/translate";
 import { useRouter } from "next/navigation";
-//
+import Cookies from "js-cookie"
 export default function Tranlator() {
   const router = useRouter();
-  const isSubscribed = sessionStorage.getItem("isSubscribed");
+  const isSubscribed = Cookies.get("isSubscribed");
   console.log(isSubscribed);
   if (isSubscribed === "false") {
     router.push("/subscription-plans");

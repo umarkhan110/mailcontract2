@@ -7,22 +7,18 @@ const Template = ({ children }) => {
   const path = usePathname();
   const router = useRouter();
   const isAuthenticated = Cookies.get("access-token");
-  const isSubscribed = Cookies.get("isSubscribed");
-
   const protectedRoutes = ["/", "/sign-in", "/sign-up"];
 
   useEffect(() => {
+    debugger
     if (!isAuthenticated && !protectedRoutes.includes(path)) {
       router.push("/");
     }
     if (!isAuthenticated && path === "/translator") {
       router.push("/sign-in");
     }
-    if (!isAuthenticated && path === "/subscription-plan") {
+    if (!isAuthenticated && path === "/subscription-plans") {
       router.push("/sign-in");
-    }
-    if (!isSubscribed && path === "/translator") {
-      router.push("/subscription-plan");
     }
   }, [isAuthenticated, path, router]);
 

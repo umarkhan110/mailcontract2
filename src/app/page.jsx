@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react'
 import { Dialog } from '@headlessui/react'
 import { onAuthStateChanged, signOut } from 'firebase/auth';
 import { auth } from "@/app/firebase/config";
+import Cookies from 'js-cookie';
 // import { switchThemeDuration } from "./constant";
 
 // import { Bars3Icon, XMarkIcon } from '@heroicons/react/24/outline'
@@ -17,11 +18,14 @@ import { auth } from "@/app/firebase/config";
 export default function Home() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [route, setRoute] = useState("")
+  const isSubscribed = Cookies.get("isSubscribed");
   useEffect(() => {
     onAuthStateChanged(auth, (user) => {
-      if (user) {
+      if (user && isSubscribed === "true") {
         const uid = user.uid;
         setRoute("/translator")
+      }else if(isSubscribed === "false"){
+        setRoute("/subscription-plans")
       }else{
         setRoute("/sign-in")
       }
@@ -30,6 +34,10 @@ export default function Home() {
   const handleSignOut = async () => {
     try {
       await signOut(auth);
+      Cookies.remove("access-token")
+      Cookies.remove("userId")
+      Cookies.remove("isSubscribed")
+
     } catch (error) {
       console.error('Error signing out:', error.message);
     }

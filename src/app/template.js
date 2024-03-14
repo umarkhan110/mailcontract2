@@ -8,7 +8,7 @@ const Template = ({ children }) => {
   const router = useRouter();
   const isAuthenticated = Cookies.get("access-token");
   const protectedRoutes = ["/", "/sign-in", "/sign-up"];
-
+  const isSubscribed = Cookies.get("isSubscribed");
   useEffect(() => {
     debugger
     if (!isAuthenticated && !protectedRoutes.includes(path)) {
@@ -19,6 +19,9 @@ const Template = ({ children }) => {
     }
     if (!isAuthenticated && path === "/subscription-plans") {
       router.push("/sign-in");
+    }
+    if (isSubscribed === "false" && path === "/translator") {
+      router.push("/subscription-plans");
     }
   }, [isAuthenticated, path, router]);
 

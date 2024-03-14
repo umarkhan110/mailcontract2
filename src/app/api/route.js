@@ -53,21 +53,21 @@ export async function POST(req) {
               freehits: currentFreeHits - 1,
             });
 
-            // const msg = await anthropic.messages.create({
-            //   model: "claude-3-opus-20240229",
-            //   max_tokens: 1000,
-            //   temperature: 0,
-            //   system: "Translate classical Armenian language to modern Armenian language\nUser will write classical Armenian language and we will give him translated text(modern Armenian language) in response.\nor\nuser can upload a Armenian classical language pdf or image to modern Armenian language text.",
-            //   messages: [
-            //     {
-            //       "role": "user",
-            //       "content": [
-            //         content
-            //       ]
-            //     }
-            //   ]
-            // });
-            return NextResponse.json({ success: true, translatedText: "msg" });
+            const msg = await anthropic.messages.create({
+              model: "claude-3-opus-20240229",
+              max_tokens: 1000,
+              temperature: 0,
+              system: "Translate classical Armenian language to modern Armenian language\nUser will write classical Armenian language and we will give him translated text(modern Armenian language) in response.\nor\nuser can upload a Armenian classical language pdf or image to modern Armenian language text.",
+              messages: [
+                {
+                  "role": "user",
+                  "content": [
+                    content
+                  ]
+                }
+              ]
+            });
+            return NextResponse.json({ success: true, translatedText: msg });
           } else {
             return NextResponse.json({
               success: false,

@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { translate } from "../service/translate";
 import { useRouter } from "next/navigation";
 import Cookies from "js-cookie";
+import { ShowNotification } from "../template";
 export default function Tranlator() {
   const router = useRouter();
   // // const isSubscribed = Cookies.get("isSubscribed");
@@ -29,7 +30,7 @@ export default function Tranlator() {
     if (response.success) {
       setTransltedText(response?.translatedText?.content[0]?.text);
     } else {
-      alert(response.message);
+      ShowNotification(response.message, "error");
       if(response.message === "No free hits remaining"){
         router.push("/subscription-plans")
       }

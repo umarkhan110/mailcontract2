@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { doc, getDoc } from "firebase/firestore";
 import Cookies from "js-cookie";
+import { ShowNotification } from "../template";
 
 const SignIn = () => {
   const router = useRouter();
@@ -25,10 +26,11 @@ const SignIn = () => {
       }
       setEmail("");
       setPassword("");
+      ShowNotification("Login Successfully", "success");
       router.push("/");
     } catch (error) {
-      alert(error.message);
-      console.error("Error signing in:", error.message);
+      ShowNotification(error.code, "error");
+      console.error("Error signing in:", error);
     }
   };
 

@@ -19,6 +19,7 @@ import {
 import StripeCheckout from "react-stripe-checkout";
 import { useRouter } from "next/navigation";
 import Cookies from "js-cookie";
+import { ShowNotification } from "../template";
 
 const SubscriptionPlans = () => {
   const plans = [
@@ -42,7 +43,7 @@ const SubscriptionPlans = () => {
       const userDocRef = doc(db, "users", userId);
       const userDoc = await getDoc(userDocRef);
       if (userDoc.exists() && userDoc.data().availFreeTrialAlready) {
-        alert("Already used free trial");
+        ShowNotification("Already used free trial", "error");
       } else {
         const data = {
           subscriptionStatus: "active",
@@ -65,7 +66,8 @@ const SubscriptionPlans = () => {
   };
 
   const handlePaymentSuccess = () => {
-    console.log("Payment successful!");
+    // console.log("Payment successful!");
+    ShowNotification("Payment Successfully", "success");
     setOpen(false);
     router.push("/translator");
   };

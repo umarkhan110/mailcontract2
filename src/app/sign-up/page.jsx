@@ -5,6 +5,7 @@ import { auth } from "@/app/firebase/config";
 import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
 import { useRouter } from "next/navigation";
 import Cookies from "js-cookie";
+import { ShowNotification } from "../template";
 
 const SignUp = () => {
   const router = useRouter();
@@ -23,12 +24,13 @@ const SignUp = () => {
       // setEmail('');
       // setPassword('')
       if(res.user){
+        ShowNotification("User Created Successfully", "success");
         router.push("/sign-in");
       }else{
-        alert(res.error)
+        ShowNotification(error.code, "error");
       }
     } catch (error) {
-      alert(error.message);
+      ShowNotification(error.code, "error");
       console.error("Error signing up:", error.message);
     }
   };

@@ -2,6 +2,8 @@
 import { useEffect } from "react";
 import Cookies from "js-cookie";
 import { usePathname, useRouter } from "next/navigation";
+import { toast, ToastContainer } from "react-toastify";
+import 'react-toastify/dist/ReactToastify.css';
 
 const Template = ({ children }) => {
   const path = usePathname();
@@ -10,7 +12,6 @@ const Template = ({ children }) => {
   const protectedRoutes = ["/", "/sign-in", "/sign-up"];
   const isSubscribed = Cookies.get("isSubscribed");
   useEffect(() => {
-    debugger
     if (!isAuthenticated && !protectedRoutes.includes(path)) {
       router.push("/");
     }
@@ -32,8 +33,21 @@ const Template = ({ children }) => {
       ) : (
         <div className="h-screen min-h-screen max-h-screen">{children}</div>
       )}
+       <ToastContainer />
     </>
   );
 };
 
 export default Template;
+
+export const ShowNotification = (message, type) => {
+  toast(message, {
+    type,
+    position: "top-right",
+    autoClose: 2000,
+    hideProgressBar: false,
+    closeOnClick: true,
+    pauseOnHover: true,
+    draggable: true,
+  });
+};

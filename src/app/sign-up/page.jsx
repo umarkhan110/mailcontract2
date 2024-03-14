@@ -4,6 +4,7 @@ import { useState } from "react";
 import { auth } from "@/app/firebase/config";
 import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
 import { useRouter } from "next/navigation";
+import Cookies from "js-cookie";
 
 const SignUp = () => {
   const router = useRouter();
@@ -16,12 +17,16 @@ const SignUp = () => {
     try {
       const res = await createUserWithEmailAndPassword(auth, email, password);
       await updateProfile(res.user, { displayName: name });
-      // console.log(res)
+      console.log(res)
       // console.log(res.user)
-      sessionStorage.setItem("access-token", res.user.accessToken);
+      // Cookies.set("access-token", res.user.accessToken);
       // setEmail('');
       // setPassword('')
-      router.push("/sign-in");
+      if(res.user){
+        router.push("/sign-in");
+      }else{
+        alert(res.error)
+      }
     } catch (error) {
       alert(error.message);
       console.error("Error signing up:", error.message);

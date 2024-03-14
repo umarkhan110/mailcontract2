@@ -4,6 +4,7 @@ import { auth, db } from "@/app/firebase/config";
 import { useRouter } from "next/navigation";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { doc, getDoc } from "firebase/firestore";
+import Cookies from "js-cookie";
 
 const SignIn = () => {
   const router = useRouter();
@@ -13,14 +14,14 @@ const SignIn = () => {
   const handleSignIn = async () => {
     try {
       const res = await signInWithEmailAndPassword(auth, email, password);
-      sessionStorage.setItem("access-token", res.user.accessToken);
-      sessionStorage.setItem("userId", res.user.uid);
+      Cookies.set("access-token", res.user.accessToken);
+      Cookies.set("userId", res.user.uid);
       const userDocRef = doc(db, "users", res.user.uid);
       const userDoc = await getDoc(userDocRef);
       if (userDoc.exists() && userDoc.data().subscriptionStatus === "active") {
-        sessionStorage.setItem("isSubscribed", true);
+        Cookies.set("isSubscribed", true);
       } else {
-        sessionStorage.setItem("isSubscribed", false);
+        Cookies.set("isSubscribed", false);
       }
       setEmail("");
       setPassword("");
@@ -32,7 +33,7 @@ const SignIn = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-900">
+    <div className="min-h-screen flex items-center justify-center dark:bg-gray-900 bg-white">
       <div className="bg-gray-800 p-10 rounded-lg shadow-xl w-96">
         <h1 className="text-white text-2xl mb-5">Sign In</h1>
         <input

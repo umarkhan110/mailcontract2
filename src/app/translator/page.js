@@ -2,23 +2,24 @@
 import { useEffect, useState } from "react";
 import { translate } from "../service/translate";
 import { useRouter } from "next/navigation";
-import Cookies from "js-cookie"
+import Cookies from "js-cookie";
 export default function Tranlator() {
   const router = useRouter();
-  const isSubscribed = Cookies.get("isSubscribed");
-  console.log(isSubscribed);
-  if (isSubscribed === "false") {
-    router.push("/subscription-plans");
-  }
+  // // const isSubscribed = Cookies.get("isSubscribed");
+  // // console.log(isSubscribed);
+  // // if (isSubscribed === "false") {
+  // //   router.push("/subscription-plans");
+  // // }
 
   const [input, setInput] = useState("");
   const [transltedText, setTransltedText] = useState("");
   const [loader, setLoader] = useState(false);
+  const [textOrImage, setTextOrImage] = useState("text");
   const [imageBase64, setImageBase64] = useState("");
 
   const translateText = async () => {
     setLoader(true);
-    const userId = sessionStorage.getItem("userId");
+    const userId = Cookies.get("userId");
     const data = {
       text: input,
       image: imageBase64,
@@ -29,6 +30,9 @@ export default function Tranlator() {
       setTransltedText(response?.translatedText?.content[0]?.text);
     } else {
       alert(response.message);
+      if(response.message === "No free hits remaining"){
+        router.push("/subscription-plans")
+      }
     }
     setLoader(false);
   };
@@ -45,37 +49,65 @@ export default function Tranlator() {
   };
 
   return (
-    <div className="m-10">
+    <div className="my-16 md:mx-20 mx-5">
       <h4 className="text-center">
         Translate Classical Armenian language to Modern Armenian language
       </h4>
 
-      <div className="flex justify-center mt-5 mx-10">
+      <div className="md:flex flex-row justify-center mt-5 gap-10 h-80">
         <div className="md:w-1/2 mb-4">
-          <h6>Enter Classical Armenian language</h6>
-          <textarea
-            className="form-control mb-3 p-2 border"
-            rows="5"
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            placeholder="Enter Classical Armenian language"
-          ></textarea>
-          <input type="file" accept="image/jpeg" onChange={handleImageUpload} />
-          <button
-            className="bg-blue-500 text-white px-4 py-2 rounded"
-            onClick={translateText}
-          >
-            Translate
-          </button>
+          <div className="flex gap-4 mb-2">
+            <button
+              className="border rounded-lg px-4 py-2"
+              onClick={() => setTextOrImage("text")}
+            >
+              Text
+            </button>
+
+            <button
+              className="border rounded-lg px-4 py-2"
+              onClick={() => setTextOrImage("video")}
+            >
+              Image
+            </button>
+          </div>
+          {textOrImage === "text" ? (
+            <textarea
+              className="mb-3 p-2 border rounded-lg w-full h-full"
+              rows="5"
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              placeholder="Enter Classical Armenian language"
+            ></textarea>
+          ) : (
+            <input
+              type="file"
+              accept="image/jpeg"
+              onChange={handleImageUpload}
+            />
+          )}
+            <button
+        className="bg-blue-500 text-white px-4 py-2 rounded mb-3 md:mt-10 block md:hidden"
+        onClick={translateText}
+        disabled={input === " " ? true : false}
+      >
+        Translate
+      </button>
         </div>
 
-        <div className="md:w-1/2">
-          <h6>Modern Armenian language</h6>
-          <div className="border p-3" style={{ minHeight: "200px" }}>
+        <div className="md:w-1/2 h-80">
+          <h6 className="my-2">Modern Armenian language</h6>
+          <div className="border p-3 h-full">
             {loader ? <p>Loading...</p> : transltedText}
           </div>
         </div>
       </div>
+      <button
+        className="bg-blue-500 text-white px-4 py-2 rounded mt-10 hidden md:block"
+        onClick={translateText}
+      >
+        Translate
+      </button>
     </div>
   );
 }

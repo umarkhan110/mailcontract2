@@ -18,6 +18,7 @@ import {
 } from "firebase/firestore";
 import StripeCheckout from "react-stripe-checkout";
 import { useRouter } from "next/navigation";
+import Cookies from "js-cookie";
 
 const SubscriptionPlans = () => {
   const plans = [
@@ -37,7 +38,7 @@ const SubscriptionPlans = () => {
     e.preventDefault();
     setSelectedPlan(plan);
     if (plan.id === 1) {
-      const userId = sessionStorage.getItem("userId");
+      const userId = Cookies.get("userId");
       const userDocRef = doc(db, "users", userId);
       const userDoc = await getDoc(userDocRef);
       if (userDoc.exists() && userDoc.data().availFreeTrialAlready) {
@@ -54,6 +55,7 @@ const SubscriptionPlans = () => {
           availFreeTrialAlready: true,
         };
         await setDoc(userDocRef, data, { merge: true });
+        Cookies.set("isSubscribed", true);
         handlePaymentSuccess();
       }
       return;
@@ -75,7 +77,7 @@ const SubscriptionPlans = () => {
     const res = await stripeCheckout(data);
 
     if (res.success) {
-      const userId = sessionStorage.getItem("userId");
+      const userId = Cookies.get("userId");
       const data = {
         subscriptionStatus: "active",
         subscriptionStartDate: new Date().toISOString(),
@@ -88,7 +90,7 @@ const SubscriptionPlans = () => {
       await setDoc(userDocRef, data, { merge: true });
       const userDoc = await getDoc(userDocRef);
       if (userDoc.exists() && userDoc.data().subscriptionStatus === "active") {
-        sessionStorage.setItem("isSubscribed", true);
+        Cookies.set("isSubscribed", true);
       }
       handlePaymentSuccess();
     }
@@ -332,7 +334,7 @@ export default SubscriptionPlans;
 //     const subscriptionEndDate = new Date(currentDate);
 //     subscriptionEndDate.setDate(currentDate.getDate() + 30);
 //     if (selectedPlan.id === 1) {
-//       const userId = sessionStorage.getItem("userId");
+//       const userId = Cookies.get("userId");
 //       const userDocRef = doc(db, "users", userId);
 //       const userDoc = await getDoc(userDocRef);
 //       if (userDoc.exists() && userDoc.data().availFreeTrialAlready) {
@@ -360,7 +362,7 @@ export default SubscriptionPlans;
 //     const res = await stripeCheckout(selectedPlan);
 //     console.log(res);
 //     if (res.success) {
-//       const userId = sessionStorage.getItem("userId");
+//       const userId = Cookies.get("userId");
 //       const data = {
 //         subscriptionStatus: "active",
 //         subscriptionStartDate: new Date().toISOString(),

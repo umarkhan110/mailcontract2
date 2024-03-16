@@ -15,7 +15,6 @@ export default function RootLayout({ children }) {
     <html lang="en">
       <body className={`${inter.className} bg-slate-50 dark:bg-[#0d1117] ${switchThemeDuration}`}>
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-          <ThemeSwitcher />
           {children}
         </ThemeProvider></body>
     </html>

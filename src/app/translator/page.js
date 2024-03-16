@@ -50,8 +50,8 @@ export default function Tranlator() {
   };
 
   return (
-    <div className="my-16 md:mx-20 mx-5">
-      <h4 className="text-center">
+    <div className="mt-28 md:mx-20 mx-5">
+      <h4 className="text-center text-xl">
         Translate Classical Armenian language to Modern Armenian language
       </h4>
 

@@ -23,9 +23,9 @@ import { ShowNotification } from "../template";
 
 const SubscriptionPlans = () => {
   const plans = [
-    { id: 1, name: "Free Trial", price: 0, hits: 3 },
-    { id: 2, name: "Basic Plan", price: 10, hits: "Unlimited"},
-    { id: 3, name: "Standard Plan", price: 20 , hits: "Unlimited"},
+    { id: 1, name: "Free Trial", price: 0, hits: 3},
+    { id: 2, name: "Basic Plan", price: 10, hits: "Unlimited", extraFeature: "Translate Armenian Image"},
+    { id: 3, name: "Premium Plan", price: 20 , hits: "Unlimited", extraFeature: "Translate into english also"},
   ];
   const router = useRouter();
   const currentDate = new Date();
@@ -53,7 +53,7 @@ const SubscriptionPlans = () => {
           planName: plan.name,
           price: plan.price,
           freehits: 3,
-          availFreeTrialAlready: true,
+          availFreeTrialAlready: true
         };
         await setDoc(userDocRef, data, { merge: true });
         Cookies.set("isSubscribed", true);
@@ -87,6 +87,7 @@ const SubscriptionPlans = () => {
         planId: selectedPlan?.id,
         planName: selectedPlan.name,
         price: selectedPlan.price,
+        extraFeature: selectedPlan.extraFeature
       };
       const userDocRef = doc(db, "users", userId);
       await setDoc(userDocRef, data, { merge: true });
@@ -275,25 +276,7 @@ const SubscriptionPlans = () => {
                       ></path>
                     </svg>
                     <span>
-                      Premium support:{" "}
-                      <span class="font-semibold">6 months</span>
-                    </span>
-                  </li>
-                  <li class="flex items-center space-x-3">
-                    <svg
-                      class="flex-shrink-0 w-5 h-5 text-green-500 dark:text-green-400"
-                      fill="currentColor"
-                      viewBox="0 0 20 20"
-                      xmlns="http://www.w3.org/2000/svg"
-                    >
-                      <path
-                        fill-rule="evenodd"
-                        d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                        clip-rule="evenodd"
-                      ></path>
-                    </svg>
-                    <span>
-                      Free updates: <span class="font-semibold">6 months</span>
+                      Extra Feature: <span class="font-semibold">{plan?.extraFeature || "No"}</span>
                     </span>
                   </li>
                 </ul>

@@ -56,9 +56,7 @@ const Template = ({ children }) => {
 
   return (
     <>
-      {isAuthenticated ? (
-        <div>
-          <header className="absolute inset-x-0 top-0 z-40">
+              <header className="absolute inset-x-0 top-0 z-40">
             <nav
               className="flex items-center justify-between p-6 lg:px-8"
               aria-label="Global"
@@ -149,6 +147,8 @@ const Template = ({ children }) => {
               </Dialog.Panel>
             </Dialog>
           </header>
+      {isAuthenticated ? (
+        <div>
           {children}
         </div>
       ) : (

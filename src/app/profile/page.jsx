@@ -73,12 +73,12 @@ export default function Tranlator() {
             <p className="font-light text-gray-600 mt-3 dark:text-white">
               {user?.email}
             </p>
-            <p className="mt-8 text-gray-500 dark:text-white">
+            {/* <p className="mt-8 text-gray-500 dark:text-white">
               Solution Manager
             </p>
             <p className="mt-2 text-gray-500 dark:text-white">
               University of Computer Science
-            </p>
+            </p> */}
           </div>
         </div>
         <div className="bg-white dark:bg-gray-700 md:p-4">

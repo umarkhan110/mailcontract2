@@ -24,6 +24,11 @@ const SignIn = () => {
       } else {
         Cookies.set("isSubscribed", false);
       }
+      if (userDoc.exists() && userDoc.data().planId === 3) {
+        Cookies.set("premium", true);
+      }else{
+        Cookies.set("premium", false);
+      }
       setEmail("");
       setPassword("");
       ShowNotification("Login Successfully", "success");

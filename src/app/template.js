@@ -49,6 +49,7 @@ const Template = ({ children }) => {
       Cookies.remove("access-token");
       Cookies.remove("userId");
       Cookies.remove("isSubscribed");
+      Cookies.remove("premium");
     } catch (error) {
       console.error("Error signing out:", error.message);
     }

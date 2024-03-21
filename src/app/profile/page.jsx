@@ -5,7 +5,7 @@ import { ShowNotification } from "../template";
 import { useEffect, useState } from "react";
 import { auth, db } from "../firebase/config";
 import { onAuthStateChanged } from "firebase/auth";
-import { doc, getDoc } from "firebase/firestore";
+import { doc, getDoc, updateDoc } from "firebase/firestore";
 export default function Tranlator() {
   const router = useRouter();
   const [user, setUser] = useState({
@@ -34,6 +34,23 @@ export default function Tranlator() {
     };
     getUserSubscriptionDetail();
   }, []);
+  const cancelSubscription = async () => {
+    try {
+      const userId = Cookies.get("userId");
+      const userDocRef = doc(db, "users", userId);
+      const userDoc = await getDoc(userDocRef);
+      if (userDoc.exists() && userDoc.data().subscriptionStatus === "active") {
+        await updateDoc(userDocRef, {
+          subscriptionStatus: "inactive",
+        });
+        Cookies.set("isSubscribed", false);
+        ShowNotification("You unsubscribed the services!", "success");
+        router.push("/");
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
   return (
     <div className="md:mx-20 mx-0 dark:text-white">
       <div
@@ -111,7 +128,7 @@ export default function Tranlator() {
 
             <div className="mt-16 grid divide-x divide-y  divide-gray-700 overflow-hidden  rounded-3xl border text-gray-600 border-gray-700 sm:grid-cols-1 lg:grid-cols-1  lg:divide-y-0 xl:grid-cols-1">
               <div className="group relative bg-gray-800 transition hover:z-[1] hover:shadow-2xl  hover:shadow-gray-600/10">
-                {userSubscription === null ? (
+                {userSubscription?.subscriptionStatus == "inactive" ? (
                   <h5 className="text-xl font-semibold text-white transition group-hover:text-secondary m-10">
                     {" "}
                     You don't have subscribe any package.{" "}
@@ -123,40 +140,51 @@ export default function Tranlator() {
                     </a>
                   </h5>
                 ) : (
-                  <div className="relative space-y-8 py-12 p-8">
-                    <img
-                      src="https://www.svgrepo.com/show/164986/logo.svg"
-                      loading="lazy"
-                      width="200"
-                      height="200"
-                      className="w-12 h-12 rounded-full"
-                      style={{ color: "transparent" }}
-                    />
-                    <div className="space-y-2">
-                      <h5 className="text-xl font-semibold text-white transition group-hover:text-secondary">
-                        {userSubscription?.planName}
-                      </h5>
-                      {userSubscription?.planId !== 1 && (
-                        <p className="text-gray-300">
-                          Extra Feature: Unlimited Hits,{" "}
-                          {userSubscription?.extraFeature}
-                        </p>
-                      )}
-                      {userSubscription?.planId !== 1 && (
-                        <p className="text-gray-300">
-                          Start Date: {userSubscription?.subscriptionStartDate}
-                        </p>
-                      )}
-                      {userSubscription?.planId !== 1 && (
-                        <p className="text-gray-300">
-                          Expiry Date: {userSubscription?.subscriptionEndDate}
-                        </p>
-                      )}
-                      {userSubscription?.planId === 1 && (
-                        <p className="text-gray-300">
-                          Free Hits Available: {userSubscription?.freehits}
-                        </p>
-                      )}
+                  <div className="flex justify-between">
+                    <div className="relative space-y-8 py-12 p-8">
+                      <img
+                        src="https://www.svgrepo.com/show/164986/logo.svg"
+                        loading="lazy"
+                        width="200"
+                        height="200"
+                        className="w-12 h-12 rounded-full"
+                        style={{ color: "transparent" }}
+                      />
+                      <div className="space-y-2">
+                        <h5 className="text-xl font-semibold text-white transition group-hover:text-secondary">
+                          {userSubscription?.planName}
+                        </h5>
+                        {userSubscription?.planId !== 1 && (
+                          <p className="text-gray-300">
+                            Extra Feature: Unlimited Hits,{" "}
+                            {userSubscription?.extraFeature}
+                          </p>
+                        )}
+                        {userSubscription?.planId !== 1 && (
+                          <p className="text-gray-300">
+                            Start Date:{" "}
+                            {userSubscription?.subscriptionStartDate}
+                          </p>
+                        )}
+                        {userSubscription?.planId !== 1 && (
+                          <p className="text-gray-300">
+                            Expiry Date: {userSubscription?.subscriptionEndDate}
+                          </p>
+                        )}
+                        {userSubscription?.planId === 1 && (
+                          <p className="text-gray-300">
+                            Free Hits Available: {userSubscription?.freehits}
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                    <div className="m-20">
+                      <button
+                        className="rounded-md bg-[#5e5170] px-6 py-3 text-sm font-semibold text-white shadow-sm hover:bg-[#886daf] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+                        onClick={cancelSubscription}
+                      >
+                        Cancel Subscription
+                      </button>
                     </div>
                   </div>
                 )}

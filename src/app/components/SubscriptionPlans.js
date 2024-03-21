@@ -1,25 +1,15 @@
 "use client";
 import React from "react";
 import { Fragment } from "react";
-import { db } from "@/app/firebase/config";
+import { auth, db } from "@/app/firebase/config";
 import { stripeCheckout } from "../service/stripe-checkout";
 import { Dialog, Transition } from "@headlessui/react";
-import {
-  collection,
-  doc,
-  getDocs,
-  onSnapshot,
-  query,
-  setDoc,
-  addDoc,
-  serverTimestamp,
-  Timestamp,
-  getDoc,
-} from "firebase/firestore";
+import { doc, setDoc, getDoc } from "firebase/firestore";
 import StripeCheckout from "react-stripe-checkout";
 import { useRouter } from "next/navigation";
 import Cookies from "js-cookie";
 import { ShowNotification } from "../template";
+import { onAuthStateChanged } from "firebase/auth";
 
 const SubscriptionPlans = () => {
   const plans = [
@@ -69,6 +59,11 @@ const SubscriptionPlans = () => {
 
   const handleSelectPlan = async (plan, e) => {
     e.preventDefault();
+    onAuthStateChanged(auth, (user) => {
+      if (!user) {
+        router.push("/sign-in");
+      }
+    });
     setSelectedPlan(plan);
     if (plan.id === 1) {
       const userId = Cookies.get("userId");
@@ -291,7 +286,7 @@ const SubscriptionPlans = () => {
                   ))}
                 </ul>
                 <button
-                  class="text-white bg-primary-600 hover:bg-primary-700 focus:ring-4 focus:ring-primary-200 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:text-white  dark:focus:ring-primary-900"
+                  class="text-white bg-[#5e5170] hover:bg-[#886daf]  font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:text-white  dark:focus:ring-primary-900"
                   onClick={(e) => handleSelectPlan(plan, e)}
                 >
                   Get started

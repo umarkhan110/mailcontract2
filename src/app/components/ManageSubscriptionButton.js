@@ -1,7 +1,8 @@
 "use client";
 
 import React from "react";
-import { manageStripeSubscriptionAction } from "@/app/_actions/stripe";
+// import { manageStripeSubscriptionAction } from "@/app/api/stripeactions/stripe";
+import { stripeactions } from "../service/stripeactions";
 
 // interface ManageUserSubscriptionButtonProps {
 //   userId: string;
@@ -27,16 +28,18 @@ export function ManageUserSubscriptionButton({
 
     startTransition(async () => {
       try {
-        const session = await manageStripeSubscriptionAction({
+        const data ={
           email,
           userId,
           isSubscribed,
           isCurrentPlan,
           stripeCustomerId,
           stripePriceId,
-        });
-        if (session) {
-          window.location.href = session.url ?? "/dashboard/billing";
+        }
+        const res = await stripeactions(data);
+        console.log(res)
+        if (res.success) {
+          window.location.href = res.res.url ?? "/dashboard/billing";
         }
       } catch (err) {
         console.error((err).message);

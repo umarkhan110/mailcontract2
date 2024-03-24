@@ -37,7 +37,7 @@ export function ManageUserSubscriptionButton({
           stripePriceId,
         }
         const res = await stripeactions(data);
-        console.log(res)
+        // console.log("LINE NO 40",res)
         if (res.success) {
           window.location.href = res.res.url ?? "/dashboard/billing";
         }

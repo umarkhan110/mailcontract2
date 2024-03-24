@@ -53,7 +53,7 @@ const [subscriptionPlan, setSubscriptionPlan] = useState()
   const abc =async()=>{
     const res = await stripe(data);
     setSubscriptionPlan(res?.res)
-    console.log(res)
+    // console.log("response on sub-plans",res)
   }
 useEffect(()=>{
   abc()

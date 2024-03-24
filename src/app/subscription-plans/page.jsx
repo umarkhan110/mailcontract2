@@ -1,27 +1,12 @@
-"use client";
-import React from "react";
-import { Fragment } from "react";
-import { db } from "@/app/firebase/config";
-import { stripeCheckout } from "../service/stripe-checkout";
-import { Dialog, Transition } from "@headlessui/react";
-import {
-  collection,
-  doc,
-  getDocs,
-  onSnapshot,
-  query,
-  setDoc,
-  addDoc,
-  serverTimestamp,
-  Timestamp,
-  getDoc,
-} from "firebase/firestore";
-import StripeCheckout from "react-stripe-checkout";
-import { useRouter } from "next/navigation";
-import Cookies from "js-cookie";
-import { ShowNotification } from "../template";
 
+"use client"
+import Cookies from "js-cookie";
+import { ManageUserSubscriptionButton } from "../components/ManageSubscriptionButton";
+import { stripe } from "../service/stripe";
+import { useEffect, useState } from "react";
 const SubscriptionPlans = () => {
+const userId = Cookies.get("userId")
+const [subscriptionPlan, setSubscriptionPlan] = useState()
   const plans = [
     {
       id: 1,
@@ -43,6 +28,7 @@ const SubscriptionPlans = () => {
         "Translate Classical Armenian Text",
         "Translate Classical Armenian Image",
       ],
+      stripePriceId: process.env.NEXT_PUBLIC_STRIPE_BASIC_PRODUCT,
     },
     {
       id: 3,
@@ -57,172 +43,23 @@ const SubscriptionPlans = () => {
         "Translate Modren Armenian Text",
         "Translate into English",
       ],
+      stripePriceId: process.env.NEXT_PUBLIC_STRIPE_PREMIUM_PRODUCT,
     },
   ];
-  const router = useRouter();
-  const currentDate = new Date();
-  const subscriptionEndDate = new Date(currentDate);
-  subscriptionEndDate.setDate(currentDate.getDate() + 30);
-
-  const [selectedPlan, setSelectedPlan] = React.useState(null);
-  const [open, setOpen] = React.useState(false);
-
-  const handleSelectPlan = async (plan, e) => {
-    e.preventDefault();
-    setSelectedPlan(plan);
-    if (plan.id === 1) {
-      const userId = Cookies.get("userId");
-      const userDocRef = doc(db, "users", userId);
-      const userDoc = await getDoc(userDocRef);
-      if (userDoc.exists() && userDoc.data().availFreeTrialAlready) {
-        ShowNotification("Already used free trial", "error");
-      } else {
-        const data = {
-          subscriptionStatus: "active",
-          subscriptionStartDate: new Date().toISOString(),
-          subscriptionEndDate: subscriptionEndDate.toISOString(),
-          planId: plan?.id,
-          planName: plan.name,
-          price: plan.price,
-          freehits: 3,
-          availFreeTrialAlready: true,
-        };
-        await setDoc(userDocRef, data, { merge: true });
-        Cookies.set("isSubscribed", true);
-        handlePaymentSuccess();
-      }
-      return;
-    } else {
-      setOpen(true);
-    }
-  };
-
-  const handlePaymentSuccess = () => {
-    // console.log("Payment successful!");
-    ShowNotification("Payment Successfully", "success");
-    setOpen(false);
-    router.push("/translator");
-  };
-  const onToken = async (token) => {
-    const data = {
-      tokenId: token.id,
-      amount: selectedPlan?.price,
-    };
-    const res = await stripeCheckout(data);
-
-    if (res.success) {
-      const userId = Cookies.get("userId");
-      const data = {
-        subscriptionStatus: "active",
-        subscriptionStartDate: new Date().toISOString(),
-        subscriptionEndDate: subscriptionEndDate.toISOString(),
-        planId: selectedPlan?.id,
-        planName: selectedPlan.name,
-        price: selectedPlan.price,
-        extraFeature: selectedPlan.extraFeature,
-      };
-      const userDocRef = doc(db, "users", userId);
-      await setDoc(userDocRef, data, { merge: true });
-      const userDoc = await getDoc(userDocRef);
-      if (userDoc.exists() && userDoc.data().subscriptionStatus === "active") {
-        Cookies.set("isSubscribed", true);
-        if (userDoc.data().planId === 3) {
-          Cookies.set("premium", true);
-        }else{
-          Cookies.set("premium", false);
-        }
-      }
-      handlePaymentSuccess();
-    }
-  };
-
-  const CheckoutForm = ({ open, setOpen }) => {
-    return (
-      <>
-        <Transition.Root show={open} as={Fragment}>
-          <Dialog as="div" className="relative z-10" onClose={setOpen}>
-            <Transition.Child
-              as={Fragment}
-              enter="ease-out duration-300"
-              enterFrom="opacity-0"
-              enterTo="opacity-100"
-              leave="ease-in duration-200"
-              leaveFrom="opacity-100"
-              leaveTo="opacity-0"
-            >
-              <div className="fixed inset-0 hidden bg-gray-500 bg-opacity-75 transition-opacity md:block" />
-            </Transition.Child>
-
-            <div className="fixed inset-0 z-10 w-screen overflow-y-auto">
-              <div className="flex min-h-full items-stretch justify-center text-center md:items-center md:px-2 lg:px-4">
-                <Transition.Child
-                  as={Fragment}
-                  enter="ease-out duration-300"
-                  enterFrom="opacity-0 translate-y-4 md:translate-y-0 md:scale-95"
-                  enterTo="opacity-100 translate-y-0 md:scale-100"
-                  leave="ease-in duration-200"
-                  leaveFrom="opacity-100 translate-y-0 md:scale-100"
-                  leaveTo="opacity-0 translate-y-4 md:translate-y-0 md:scale-95"
-                >
-                  <Dialog.Panel className="flex w-full transform text-left text-base transition md:my-8 md:max-w-lg md:px-4 lg:max-w-lg">
-                    <div className="relative flex w-full items-center overflow-hidden bg-white px-4 pb-8 pt-14 shadow-2xl sm:px-6 sm:pt-8 md:p-6 lg:p-8">
-                      <button
-                        type="button"
-                        className="absolute right-4 top-4 text-gray-400 hover:text-gray-500 sm:right-6 sm:top-8 md:right-6 md:top-6 lg:right-8 lg:top-8"
-                        onClick={() => setOpen(false)}
-                      >
-                        <span className="sr-only">Close</span>
-                        <div className="h-6 w-6" aria-hidden="true">
-                          x
-                        </div>
-                      </button>
-
-                      <div className="grid w-full grid-cols-1 items-start gap-x-6 gap-y-8 sm:grid-cols-12 lg:gap-x-8">
-                        <div className="sm:col-span-8 lg:col-span-12">
-                          <h2 className="text-2xl font-bold text-gray-900 sm:pr-12">
-                            Stripe Checkout
-                          </h2>
-
-                          <section
-                            aria-labelledby="information-heading"
-                            className="mt-2"
-                          >
-                            <h3 className="">{selectedPlan.name}</h3>
-
-                            <p className="text-2xl text-gray-900">
-                              ${selectedPlan.price}
-                            </p>
-                          </section>
-
-                          <section
-                            aria-labelledby="options-heading"
-                            className="mt-10"
-                          >
-                            <StripeCheckout
-                              name="Stripe Checkout"
-                              // image={Imge}
-                              // billingAddress
-                              // shippingAddress
-                              // description="Your amount"
-                              amount={selectedPlan?.price}
-                              token={onToken}
-                              stripeKey={process.env.NEXT_PUBLIC_STRIPE_API_KEY}
-                            ></StripeCheckout>
-                          </section>
-                        </div>
-                      </div>
-                    </div>
-                  </Dialog.Panel>
-                </Transition.Child>
-              </div>
-            </div>
-          </Dialog>
-        </Transition.Root>
-      </>
-    );
-  };
+  const data = {
+    userId: userId
+  }
+  console.log(userId)
+  const abc =async()=>{
+    const res = await stripe(data);
+    setSubscriptionPlan(res?.res)
+    console.log(res)
+  }
+useEffect(()=>{
+  abc()
+}, [])
   return (
-    <div className="container mx-auto mt-8">
+    <div className="container mx-auto mt-8"> 
       <section class="bg-white dark:bg-gray-900">
         <div class="py-8 px-4 mx-auto max-w-screen-xl lg:py-16 lg:px-6">
           <div class="mx-auto max-w-screen-md text-center mb-8 lg:mb-12">
@@ -290,26 +127,37 @@ const SubscriptionPlans = () => {
                     </li>
                   ))}
                 </ul>
-                <button
-                  class="text-white bg-primary-600 hover:bg-primary-700 focus:ring-4 focus:ring-primary-200 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:text-white  dark:focus:ring-primary-900"
-                  onClick={(e) => handleSelectPlan(plan, e)}
-                >
-                  Get started
-                </button>
+                <ManageUserSubscriptionButton
+                  userId={userId}
+                  email={"xyz@gmail.com"}
+                  stripePriceId={plan.stripePriceId}
+                  stripeCustomerId={subscriptionPlan?.stripeCustomerId}
+                  isSubscribed={!!subscriptionPlan?.isSubscribed}
+                  isCurrentPlan={subscriptionPlan?.name === plan.name}
+                />
               </div>
             ))}
           </div>
         </div>
       </section>
-      {selectedPlan && open && (
-        <CheckoutForm
-          selectedPlan={selectedPlan}
-          open={open}
-          setOpen={setOpen}
-        />
-      )}
     </div>
   );
 };
+
+// SubscriptionPlans.getInitialProps = async (context) => {
+//   let userId; // Declare userId outside the callback function
+
+//   // Listen for authentication state changes
+//   onAuthStateChanged(auth, (user) => {
+//     if (user) {
+//       userId = user.uid; // Assign the user ID to the userId variable
+//     } else {
+//       userId = null; // Handle case where user is not logged in
+//     }
+//   });
+//   return {
+//     userId,
+//   };
+// };
 
 export default SubscriptionPlans;

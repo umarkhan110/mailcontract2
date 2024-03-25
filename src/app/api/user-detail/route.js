@@ -15,14 +15,15 @@ export async function POST(req) {
         subscriptionStartDate: "",
         subscriptionEndDate: "",
         planId: "",
-        planName: "",
-        price: "",
         extraFeature: "",
         stripePriceId: "",
         stripeCurrentPeriodEnd: "",
         stripeSubscriptionId: "",
         stripeCustomerId: "",
-        email: ""
+        email: "",
+        status: "inactive",
+        canceledDate: "",
+        cancelRequest: false,
       };
       try {
         await setDoc(userDocRef, userData);
@@ -62,8 +63,7 @@ export async function POST(req) {
         stripeCurrentPeriodEnd: user.stripeCurrentPeriodEnd,
         stripeCustomerId: user.stripeCustomerId,
         isSubscribed,
-        isCanceled,
-        email
+        isCanceled
       },
     });
   } catch (err) {

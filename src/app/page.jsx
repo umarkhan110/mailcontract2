@@ -76,7 +76,7 @@ export default function Home() {
                 href={route}
                 className="rounded-md bg-[#5e5170] px-6 py-3 text-sm font-semibold text-white shadow-sm hover:bg-[#886daf] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
               >
-                Upgrade to Premium
+                Get Started
               </a>
             </div>
           </div>

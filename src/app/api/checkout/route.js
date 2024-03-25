@@ -4,7 +4,7 @@ const stripe = require("stripe")(process.env.NEXT_PUBLIC_STRIPE_SERVER_KEY);
 import { absoluteUrl } from "@/app/lib/utils";
 export async function POST(req) {
   const data = await req.json();
-  const billingUrl = absoluteUrl("subscription-plans");
+  const billingUrl = absoluteUrl("translator");
   try {
 
     if (data.isSubscribed && data.stripeCustomerId && data.isCurrentPlan) {

@@ -28,29 +28,29 @@ export default function Tranlator() {
       const userDocRef = doc(db, "users", userId);
       const userDoc = await getDoc(userDocRef);
       if (userDoc.exists()) {
-        console.log(userDoc.data());
+        // console.log(userDoc.data());
         setUserSubscription(userDoc.data());
       }
     };
     getUserSubscriptionDetail();
   }, []);
-  const cancelSubscription = async () => {
-    try {
-      const userId = Cookies.get("userId");
-      const userDocRef = doc(db, "users", userId);
-      const userDoc = await getDoc(userDocRef);
-      if (userDoc.exists() && userDoc.data().subscriptionStatus === "active") {
-        await updateDoc(userDocRef, {
-          subscriptionStatus: "inactive",
-        });
-        Cookies.set("isSubscribed", false);
-        ShowNotification("You unsubscribed the services!", "success");
-        router.push("/");
-      }
-    } catch (error) {
-      console.log(error);
-    }
-  };
+  // const cancelSubscription = async () => {
+  //   try {
+  //     const userId = Cookies.get("userId");
+  //     const userDocRef = doc(db, "users", userId);
+  //     const userDoc = await getDoc(userDocRef);
+  //     if (userDoc.exists() && userDoc.data().subscriptionStatus === "active") {
+  //       await updateDoc(userDocRef, {
+  //         subscriptionStatus: "inactive",
+  //       });
+  //       Cookies.set("isSubscribed", false);
+  //       ShowNotification("You unsubscribed the services!", "success");
+  //       router.push("/");
+  //     }
+  //   } catch (error) {
+  //     console.log(error);
+  //   }
+  // };
   return (
     <div className="md:mx-20 mx-0 dark:text-white">
       <div
@@ -156,7 +156,7 @@ export default function Tranlator() {
                         </h5>
                         {userSubscription?.planId !== 1 && (
                           <p className="text-gray-300">
-                            Extra Feature: Unlimited Hits,{" "}
+                            Extra Feature: {" "}
                             {userSubscription?.extraFeature}
                           </p>
                         )}
@@ -178,14 +178,14 @@ export default function Tranlator() {
                         )}
                       </div>
                     </div>
-                    <div className="m-20">
+                    {/* <div className="m-20">
                       <button
                         className="rounded-md bg-[#5e5170] px-6 py-3 text-sm font-semibold text-white shadow-sm hover:bg-[#886daf] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
-                        onClick={cancelSubscription}
+                        // onClick={cancelSubscription}
                       >
                         Cancel Subscription
                       </button>
-                    </div>
+                    </div> */}
                   </div>
                 )}
               </div>

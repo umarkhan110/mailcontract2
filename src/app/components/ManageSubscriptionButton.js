@@ -2,6 +2,9 @@
 import React from "react";
 import { checkout } from "../service/checkout";
 import Cookies from "js-cookie";
+import { doc, getDoc, setDoc } from "firebase/firestore";
+import { db } from "../firebase/config";
+import { ShowNotification } from "../template";
 
 export function ManageUserSubscriptionButton({
   userId,
@@ -36,6 +39,7 @@ export function ManageUserSubscriptionButton({
         };
         await setDoc(userDocRef, data, { merge: true });
         Cookies.set("isSubscribed", true);
+        ShowNotification("Free Trial Activated", "success");
         // router.push("/translator");
       }
       return;

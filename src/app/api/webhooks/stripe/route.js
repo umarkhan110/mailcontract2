@@ -12,13 +12,13 @@ export async function POST(request) {
     event = stripe.webhooks.constructEvent(
       body,
       signature,
-      process.env.STRIPE_WEBHOOK_SECRET || "",
+      process.env.STRIPE_WEBHOOK_SECRET || ""
     );
-    console.log("event", event)
+    console.log("event", event);
   } catch (err) {
     return new Response(
       `Webhook Error: ${err ? err.message : "Unknown Error"}`,
-      { status: 400 },
+      { status: 400 }
     );
   }
 
@@ -32,38 +32,31 @@ export async function POST(request) {
   const userDocRef = doc(db, "users", session?.metadata?.userId);
   if (event.type === "checkout.session.completed") {
     const subscription = await stripe.subscriptions.retrieve(
-      session.subscription,
+      session.subscription
     );
-    const currentDate = new Date();
-    const subscriptionEndDate = new Date(currentDate);
-    subscriptionEndDate.setDate(currentDate.getDate() + 30);
     await updateDoc(userDocRef, {
-        stripeSubscriptionId: subscription.id,
-        stripeCustomerId: subscription.customer,
-        stripePriceId: subscription.items.data[0].price.id,
-        stripeCurrentPeriodEnd: new Date(
-          subscription.current_period_end * 1000,
-        ),
-        subscriptionStatus: "active",
-          subscriptionEndDate: subscriptionEndDate.toISOString(),
-          planId: session?.metadata?.planId,
-          email: session?.metadata?.email,
-
-      });
+      stripeSubscriptionId: subscription.id,
+      stripeCustomerId: subscription.customer,
+      stripePriceId: subscription.items.data[0].price.id,
+      stripeCurrentPeriodEnd: new Date(subscription.current_period_end * 1000),
+      subscriptionStatus: "active",
+      subscriptionEndDate: new Date(subscription.current_period_end * 1000),
+      planId: session?.metadata?.planId,
+      email: session?.metadata?.email,
+    });
   }
 
   if (event.type === "invoice.payment_succeeded") {
-    // Retrieve the subscription details from Stripe.
     const subscription = await stripe.subscriptions.retrieve(
-      session.subscription,
+      session.subscription
     );
 
     await updateDoc(userDocRef, {
-        stripePriceId: subscription.items.data[0].price.id,
-        stripeCurrentPeriodEnd: new Date(
-          subscription.current_period_end * 1000,
-        ),
-      });
+      stripePriceId: subscription.items.data[0].price.id,
+      stripeCurrentPeriodEnd: new Date(subscription.current_period_end * 1000),
+      canceledDate: new Date(subscription.current_period_end * 1000),
+      cancelRequest: true,
+    });
   }
 
   return new Response(null, { status: 200 });

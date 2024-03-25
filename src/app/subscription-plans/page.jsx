@@ -2,11 +2,15 @@
 "use client"
 import Cookies from "js-cookie";
 import { ManageUserSubscriptionButton } from "../components/ManageSubscriptionButton";
-import { stripe } from "../service/stripe";
+import { userDetail } from "../service/user-detail";
 import { useEffect, useState } from "react";
+import { onAuthStateChanged } from "firebase/auth";
+import { auth } from "../firebase/config";
 const SubscriptionPlans = () => {
 const userId = Cookies.get("userId")
 const [subscriptionPlan, setSubscriptionPlan] = useState()
+const [email, setEmail] = useState()
+
   const plans = [
     {
       id: 1,
@@ -49,14 +53,19 @@ const [subscriptionPlan, setSubscriptionPlan] = useState()
   const data = {
     userId: userId
   }
-  console.log(userId)
-  const abc =async()=>{
-    const res = await stripe(data);
+  // console.log(userId)
+  const getUserDetail =async()=>{
+    const res = await userDetail(data);
     setSubscriptionPlan(res?.res)
-    // console.log("response on sub-plans",res)
+    console.log("response on sub-plans",res)
   }
 useEffect(()=>{
-  abc()
+  onAuthStateChanged(auth, (user) => {
+    if (user) {
+      setEmail(user?.email);
+    }
+  });
+  getUserDetail()
 }, [])
   return (
     <div className="container mx-auto mt-8"> 
@@ -129,11 +138,12 @@ useEffect(()=>{
                 </ul>
                 <ManageUserSubscriptionButton
                   userId={userId}
-                  email={"xyz@gmail.com"}
+                  email={email}
+                  planId={plan?.id}
                   stripePriceId={plan.stripePriceId}
                   stripeCustomerId={subscriptionPlan?.stripeCustomerId}
                   isSubscribed={!!subscriptionPlan?.isSubscribed}
-                  isCurrentPlan={subscriptionPlan?.name === plan.name}
+                  isCurrentPlan={subscriptionPlan?.plan?.name === plan.name}
                 />
               </div>
             ))}
@@ -143,21 +153,5 @@ useEffect(()=>{
     </div>
   );
 };
-
-// SubscriptionPlans.getInitialProps = async (context) => {
-//   let userId; // Declare userId outside the callback function
-
-//   // Listen for authentication state changes
-//   onAuthStateChanged(auth, (user) => {
-//     if (user) {
-//       userId = user.uid; // Assign the user ID to the userId variable
-//     } else {
-//       userId = null; // Handle case where user is not logged in
-//     }
-//   });
-//   return {
-//     userId,
-//   };
-// };
 
 export default SubscriptionPlans;

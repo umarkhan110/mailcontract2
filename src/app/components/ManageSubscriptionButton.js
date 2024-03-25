@@ -1,21 +1,12 @@
 "use client";
-
 import React from "react";
-// import { manageStripeSubscriptionAction } from "@/app/api/stripeactions/stripe";
-import { stripeactions } from "../service/stripeactions";
-
-// interface ManageUserSubscriptionButtonProps {
-//   userId: string;
-//   email: string;
-//   isCurrentPlan: boolean;
-//   isSubscribed: boolean;
-//   stripeCustomerId?: string | null;
-//   stripePriceId: string;
-// }
+import { checkout } from "../service/checkout";
+import Cookies from "js-cookie";
 
 export function ManageUserSubscriptionButton({
   userId,
   email,
+  planId,
   isCurrentPlan,
   isSubscribed,
   stripeCustomerId,
@@ -25,27 +16,52 @@ export function ManageUserSubscriptionButton({
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    startTransition(async () => {
-      try {
-        const data ={
-          email,
-          userId,
-          isSubscribed,
-          isCurrentPlan,
-          stripeCustomerId,
-          stripePriceId,
-        }
-        const res = await stripeactions(data);
-        // console.log("LINE NO 40",res)
-        if (res.success) {
-          window.location.href = res.res.url ?? "/dashboard/billing";
-        }
-      } catch (err) {
-        console.error((err).message);
-        // toast({ description: "Something went wrong, please try again later." });
+    if (planId === 1) {
+      const currentDate = new Date();
+      const subscriptionEndDate = new Date(currentDate);
+      subscriptionEndDate.setDate(currentDate.getDate() + 30);
+      const userDocRef = doc(db, "users", userId);
+      const userDoc = await getDoc(userDocRef);
+      if (userDoc.exists() && userDoc.data().availFreeTrialAlready) {
+        ShowNotification("Already used free trial", "error");
+      } else {
+        const data = {
+          subscriptionStatus: "active",
+          subscriptionStartDate: new Date().toISOString(),
+          subscriptionEndDate: subscriptionEndDate.toISOString(),
+          planId: planId,
+          freehits: 3,
+          availFreeTrialAlready: true,
+          email: email,
+        };
+        await setDoc(userDocRef, data, { merge: true });
+        Cookies.set("isSubscribed", true);
+        // router.push("/translator");
       }
-    });
+      return;
+    } else {
+      startTransition(async () => {
+        try {
+          const data = {
+            email,
+            userId,
+            planId,
+            isSubscribed,
+            isCurrentPlan,
+            stripeCustomerId,
+            stripePriceId,
+          };
+          const res = await checkout(data);
+          // console.log("LINE NO 40",res)
+          if (res.success) {
+            window.location.href = res.res.url ?? "/dashboard/billing";
+          }
+        } catch (err) {
+          console.error(err.message);
+          // toast({ description: "Something went wrong, please try again later." });
+        }
+      });
+    }
   };
 
   return (

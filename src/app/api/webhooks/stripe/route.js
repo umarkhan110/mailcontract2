@@ -34,6 +34,9 @@ export async function POST(request) {
     const subscription = await stripe.subscriptions.retrieve(
       session.subscription,
     );
+    const currentDate = new Date();
+    const subscriptionEndDate = new Date(currentDate);
+    subscriptionEndDate.setDate(currentDate.getDate() + 30);
     await updateDoc(userDocRef, {
         stripeSubscriptionId: subscription.id,
         stripeCustomerId: subscription.customer,
@@ -41,6 +44,11 @@ export async function POST(request) {
         stripeCurrentPeriodEnd: new Date(
           subscription.current_period_end * 1000,
         ),
+        subscriptionStatus: "active",
+          subscriptionEndDate: subscriptionEndDate.toISOString(),
+          planId: session?.metadata?.planId,
+          email: session?.metadata?.email,
+
       });
   }
 
@@ -56,7 +64,6 @@ export async function POST(request) {
           subscription.current_period_end * 1000,
         ),
       });
-    // Update the price id and set the new period end.
   }
 
   return new Response(null, { status: 200 });

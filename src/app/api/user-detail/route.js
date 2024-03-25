@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { doc, getDoc, setDoc } from "firebase/firestore";
 import { db } from "@/app/firebase/config";
 import { subscriptionPlans } from "@/config/subscription";
+import { stripe } from "@/app/lib/stripe";
 
 export async function POST(req) {
   const data = await req.json();
@@ -21,6 +22,7 @@ export async function POST(req) {
         stripeCurrentPeriodEnd: "",
         stripeSubscriptionId: "",
         stripeCustomerId: "",
+        email: ""
       };
       try {
         await setDoc(userDocRef, userData);
@@ -31,10 +33,12 @@ export async function POST(req) {
 
     const newUserSnapshot = await getDoc(userDocRef);
     const user = newUserSnapshot.data();
+    const stripeTime = user?.stripeCurrentPeriodEnd?.seconds * 1000
+    var stripeEndDate = new Date(stripeTime);
     const isSubscribed =
       user.stripePriceId &&
       user.stripeCurrentPeriodEnd &&
-      user.stripeCurrentPeriodEnd.getTime() + 86_400_000 > Date.now();
+      stripeEndDate > Date.now();
 
     const plan = isSubscribed
       ? subscriptionPlans.find(
@@ -59,6 +63,7 @@ export async function POST(req) {
         stripeCustomerId: user.stripeCustomerId,
         isSubscribed,
         isCanceled,
+        email
       },
     });
   } catch (err) {

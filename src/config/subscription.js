@@ -36,4 +36,16 @@ export const subscriptionPlans = [
     ],
     stripePriceId: process.env.NEXT_PUBLIC_STRIPE_PREMIUM_PRODUCT,
   },
+  {
+    id: 4,
+    name: "Test",
+    detail: "Access essential features to get started.",
+    price: 1,
+    hits: "Unlimited",
+    extraFeature: [
+      "Translate Classical Armenian Text",
+      "Translate Classical Armenian Image",
+    ],
+    stripePriceId: process.env.NEXT_PUBLIC_STRIPE_TEST_PRODUCT,
+  },
 ];

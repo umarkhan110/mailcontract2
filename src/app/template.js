@@ -1,24 +1,29 @@
 "use client";
 import { useEffect, useState } from "react";
 import Cookies from "js-cookie";
-import { usePathname, useRouter } from "next/navigation";
+import { useParams, usePathname, useRouter } from "next/navigation";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { Dialog } from "@headlessui/react";
 import { onAuthStateChanged, signOut } from "firebase/auth";
 import { auth } from "./firebase/config";
 import { ThemeSwitcher } from "./components/ThemeSwitcher";
+import HamburgerIcon from "./components/MenuButton";
 
 const Template = ({ children }) => {
   const path = usePathname();
+  const params = useParams()
   const router = useRouter();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [user, setUser] = useState("");
   const [route, setRoute] = useState("");
   const isAuthenticated = Cookies.get("access-token");
-  const protectedRoutes = ["/", "/sign-in", "/sign-up"];
+  const protectedRoutes = ["/", "/sign-in", "/sign-up", "/otp/"];
   const isSubscribed = Cookies.get("isSubscribed");
   useEffect(() => {
+    if(params.id){
+      return;
+    }
     if (!isAuthenticated && !protectedRoutes.includes(path)) {
       router.push("/");
     }
@@ -83,7 +88,7 @@ const Template = ({ children }) => {
                 >
                   <span className="sr-only">Open main menu</span>
                   <div className="h-6 w-6" aria-hidden="true">
-                    Menu
+                    {/* <HamburgerIcon /> */}
                   </div>
                 </button>
               </div>

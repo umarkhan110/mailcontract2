@@ -6,26 +6,34 @@ import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
 import { useRouter } from "next/navigation";
 import Cookies from "js-cookie";
 import { ShowNotification } from "../template";
+import { emailVerification } from "../service/email-verification";
+import ButtonLoader from "../components/ButtonLoader";
 
 const SignUp = () => {
   const router = useRouter();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [loader, setLoader] = useState(false);
+
   // const [createUserWithEmailAndPassword] = useCreateUserWithEmailAndPassword(auth);
 
   const handleSignUp = async () => {
     try {
+      setLoader(true)
       const res = await createUserWithEmailAndPassword(auth, email, password);
       await updateProfile(res.user, { displayName: name });
-      console.log(res)
+      const data={email:email, userId:res.user.uid}
+      // console.log(res)
+      const emailRes = await emailVerification(data)
+      // console.log(emailRes)
       // console.log(res.user)
       // Cookies.set("access-token", res.user.accessToken);
       // setEmail('');
       // setPassword('')
       if(res.user){
         ShowNotification("User Created Successfully", "success");
-        router.push("/sign-in");
+        router.push(`/otp/${res.user.uid}`);
       }else{
         ShowNotification(error.code, "error");
       }
@@ -33,6 +41,7 @@ const SignUp = () => {
       ShowNotification(error.code, "error");
       console.error("Error signing up:", error.message);
     }
+    setLoader(false)
   };
 
   return (
@@ -64,6 +73,9 @@ const SignUp = () => {
           onClick={handleSignUp}
           className="w-full p-3 bg-indigo-600 rounded text-white hover:bg-indigo-500"
         >
+           {loader && (
+          <ButtonLoader ClassStyle="inline w-4 h-4 mr-2 self-center text-white animate-spin" />
+        )}
           Sign Up
         </button>
         <div className="mt-3">

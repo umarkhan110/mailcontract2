@@ -1,10 +1,11 @@
 "use client";
-import React from "react";
+import React, { useState } from "react";
 import { checkout } from "../service/checkout";
 import Cookies from "js-cookie";
 import { doc, getDoc, setDoc } from "firebase/firestore";
 import { db } from "../firebase/config";
 import { ShowNotification } from "../template";
+import ButtonLoader from "./ButtonLoader";
 
 export function ManageUserSubscriptionButton({
   userId,
@@ -16,9 +17,11 @@ export function ManageUserSubscriptionButton({
   stripePriceId,
 }) {
   const [isPending, startTransition] = React.useTransition();
+  const [loader, setLoader] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoader(true)
     if (planId === 1) {
       const currentDate = new Date();
       const subscriptionEndDate = new Date(currentDate);
@@ -66,12 +69,15 @@ export function ManageUserSubscriptionButton({
         }
       });
     }
+    setLoader(false)
   };
 
   return (
     <form onSubmit={handleSubmit}>
       <button className="text-white bg-[#5e5170] hover:bg-[#886daf]  font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:text-white  dark:focus:ring-primary-900">
-        {isPending && <div className="mr-2 h-4 w-4 animate-spin"></div>}
+      {isPending && (
+          <ButtonLoader ClassStyle="inline w-4 h-4 mr-2 self-center text-white animate-spin" />
+        )}
         {isCurrentPlan ? "Manage Subscription" : "Subscribe"}
       </button>
     </form>

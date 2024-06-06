@@ -6,37 +6,47 @@ import { signInWithEmailAndPassword } from "firebase/auth";
 import { doc, getDoc } from "firebase/firestore";
 import Cookies from "js-cookie";
 import { ShowNotification } from "../template";
+import ButtonLoader from "../components/ButtonLoader";
 
 const SignIn = () => {
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [loader, setLoader] = useState(false);
 
   const handleSignIn = async () => {
     try {
+      setLoader(true)
       const res = await signInWithEmailAndPassword(auth, email, password);
-      Cookies.set("access-token", res.user.accessToken);
-      Cookies.set("userId", res.user.uid);
+
       const userDocRef = doc(db, "users", res.user.uid);
       const userDoc = await getDoc(userDocRef);
-      if (userDoc.exists() && userDoc.data().subscriptionStatus === "active") {
-        Cookies.set("isSubscribed", true);
-      } else {
-        Cookies.set("isSubscribed", false);
-      }
-      if (userDoc.exists() && userDoc.data().planId === 3) {
-        Cookies.set("premium", true);
+      if (userDoc.exists() && userDoc.data().isEmailVerified) {
+        Cookies.set("access-token", res.user.accessToken);
+        Cookies.set("userId", res.user.uid);
+        if (userDoc.exists() && userDoc.data().subscriptionStatus === "active") {
+          Cookies.set("isSubscribed", true);
+        } else {
+          Cookies.set("isSubscribed", false);
+        }
+        if (userDoc.exists() && userDoc.data().planId === 3) {
+          Cookies.set("premium", true);
+        }else{
+          Cookies.set("premium", false);
+        }
+        setEmail("");
+        setPassword("");
+        ShowNotification("Login Successfully", "success");
+        router.push("/");
       }else{
-        Cookies.set("premium", false);
+        ShowNotification("Email is not verified", "error")
       }
-      setEmail("");
-      setPassword("");
-      ShowNotification("Login Successfully", "success");
-      router.push("/");
     } catch (error) {
       ShowNotification(error.code, "error");
       console.error("Error signing in:", error);
     }
+    setLoader(false)
+
   };
 
   return (
@@ -61,6 +71,9 @@ const SignIn = () => {
           onClick={handleSignIn}
           className="w-full p-3 bg-indigo-600 rounded text-white hover:bg-indigo-500"
         >
+          {loader && (
+          <ButtonLoader ClassStyle="inline w-4 h-4 mr-2 self-center text-white animate-spin" />
+        )}
           Sign In
         </button>
         <div className="mt-3">

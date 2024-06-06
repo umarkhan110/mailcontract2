@@ -49,6 +49,21 @@ const [email, setEmail] = useState()
       ],
       stripePriceId: process.env.NEXT_PUBLIC_STRIPE_PREMIUM_PRODUCT,
     },
+    {
+      id: 4,
+      name: "Test",
+      detail:
+        "Gain access to all features, including advanced tools and resources.",
+      price: 1,
+      hits: "Unlimited",
+      extraFeature: [
+        "Translate Classical Armenian Text",
+        "Translate Classical Armenian Image",
+        "Translate Modren Armenian Text",
+        "Translate into English",
+      ],
+      stripePriceId: process.env.NEXT_PUBLIC_STRIPE_TEST_PRODUCT,
+    },
   ];
   const data = {
     userId: userId

@@ -46,18 +46,18 @@ export async function POST(request) {
     });
   }
 
-  if (event.type === "invoice.payment_succeeded") {
-    const subscription = await stripe.subscriptions.retrieve(
-      session.subscription
-    );
+  // if (event.type === "invoice.payment_succeeded") {
+  //   const subscription = await stripe.subscriptions.retrieve(
+  //     session.subscription
+  //   );
 
-    await updateDoc(userDocRef, {
-      stripePriceId: subscription.items.data[0].price.id,
-      stripeCurrentPeriodEnd: new Date(subscription.current_period_end * 1000),
-      canceledDate: new Date(subscription.current_period_end * 1000),
-      cancelRequest: true,
-    });
-  }
+  //   await updateDoc(userDocRef, {
+  //     stripePriceId: subscription.items.data[0].price.id,
+  //     stripeCurrentPeriodEnd: new Date(subscription.current_period_end * 1000),
+  //     canceledDate: new Date(subscription.current_period_end * 1000),
+  //     cancelRequest: true,
+  //   });
+  // }
 
   if (event.type === "customer.subscription.updated") {
     const subscription = await stripe.subscriptions.retrieve(
@@ -65,12 +65,12 @@ export async function POST(request) {
     );
 
     await updateDoc(userDocRef, {
-      stripePriceId: subscription.items.data[0].price.id,
-      stripeCurrentPeriodEnd: new Date(subscription.current_period_end * 1000),
-      canceledDate: new Date(subscription.current_period_end * 1000),
-      cancelRequest: true,
+      stripePriceId: subscription.data.items.data[0].price.id,
+      stripeCurrentPeriodEnd: new Date(subscription.data.current_period_end * 1000),
+      canceledDate: new Date(subscription.data.current_period_end * 1000),
+      // cancelRequest: true,
     });
   }
 
-  return new Response(null, { status: 200 });
+  return new Response(subscription, { status: 200 });
 }

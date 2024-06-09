@@ -65,9 +65,9 @@ export async function POST(request) {
     );
 
     await updateDoc(userDocRef, {
-      stripePriceId: subscription.data.items.data[0].price.id,
-      stripeCurrentPeriodEnd: new Date(subscription.data.current_period_end * 1000),
-      canceledDate: new Date(subscription.data.current_period_end * 1000),
+      stripePriceId: subscription.items.data[0].price.id,
+      stripeCurrentPeriodEnd: new Date(subscription.current_period_end * 1000),
+      canceledDate: new Date(subscription.current_period_end * 1000),
       // cancelRequest: true,
     });
   }

@@ -72,5 +72,5 @@ export async function POST(request) {
   //   });
   // }
 
-  return new Response(subscription, { status: 200 });
+  return new Response(null, { status: 200 });
 }

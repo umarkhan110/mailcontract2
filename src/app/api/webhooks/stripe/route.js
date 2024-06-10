@@ -1,5 +1,5 @@
 import { db } from "@/app/firebase/config";
-import { doc, updateDoc } from "firebase/firestore";
+import { collection, doc, updateDoc } from "firebase/firestore";
 import { headers } from "next/headers";
 const stripe = require("stripe")(process.env.NEXT_PUBLIC_STRIPE_SERVER_KEY);
 export async function POST(request) {
@@ -24,12 +24,13 @@ export async function POST(request) {
 
   const session = event.data.object;
 
-  if (!session?.metadata?.userId) {
-    return new Response(" umar", {
-      status: 200,
-    });
-  }
+  // if (!session?.metadata?.userId) {
+  //   return new Response(" umar", {
+  //     status: 200,
+  //   });
+  // }
   const userDocRef = doc(db, "users", session?.metadata?.userId);
+
   if (event.type === "checkout.session.completed") {
     const subscription = await stripe.subscriptions.retrieve(
       session.subscription
@@ -51,38 +52,78 @@ export async function POST(request) {
       session.subscription
     );
 
-    await updateDoc(userDocRef, {
-      stripePriceId: subscription.items.data[0].price.id,
-      stripeCurrentPeriodEnd: new Date(subscription.object.lines.data[0].period.end * 1000),
-      // canceledDate: new Date(subscription.object.lines.data[0].period.end * 1000),
-      // cancelRequest: true,
-    });
+    const usersCollectionRef = collection(db, "users");
+
+    // Create a query against the collection
+    const stripeCustomerId = subscription.customer;
+    const q = query(usersCollectionRef, where("stripeCustomerId", "==", stripeCustomerId));
+    const querySnapshot = await getDocs(q);
+
+    if (!querySnapshot.empty) {
+      querySnapshot.forEach(async (doc) => {
+        const userDocRef = doc.ref;
+        
+        await updateDoc(userDocRef, {
+          stripePriceId: subscription.items.data[0].price.id,
+          stripeCurrentPeriodEnd: new Date(subscription.current_period_end * 1000),
+          // canceledDate: new Date(subscription.current_period_end * 1000),
+          // cancelRequest: true,
+        });
+      });
+    } else {
+      console.log("No matching documents.");
+    }
+    // await updateDoc(userDocRef, {
+    //   stripePriceId: subscription.items.data[0].price.id,
+    //   stripeCurrentPeriodEnd: new Date(subscription.object.lines.data[0].period.end * 1000),
+    //   // canceledDate: new Date(subscription.object.lines.data[0].period.end * 1000),
+    //   // cancelRequest: true,
+    // });
   }
 
-  if (event.type === "invoice.payment_succeeded") {
-    const subscription = await stripe.subscriptions.retrieve(
-      session.subscription
-    );
+  // if (event.type === "invoice.payment_succeeded") {
+  //   const subscription = await stripe.subscriptions.retrieve(
+  //     session.subscription
+  //   );
 
-    await updateDoc(userDocRef, {
-      stripePriceId: subscription.items.data[0].price.id,
-      stripeCurrentPeriodEnd: new Date(subscription.items.data[0].period.end * 1000),
-      // canceledDate: new Date(subscription.object.lines.data[0].period.end * 1000),
-      cancelRequest: true,
-    });
-  }
+  //   await updateDoc(userDocRef, {
+  //     stripePriceId: subscription.items.data[0].price.id,
+  //     stripeCurrentPeriodEnd: new Date(subscription.items.data[0].period.end * 1000),
+  //     // canceledDate: new Date(subscription.object.lines.data[0].period.end * 1000),
+  //     cancelRequest: true,
+  //   });
+  // }
 
   if (event.type === "customer.subscription.updated") {
     const subscription = await stripe.subscriptions.retrieve(
       session.subscription
     );
 
-    await updateDoc(userDocRef, {
-      stripePriceId: subscription.items.data[0].price.id,
-      stripeCurrentPeriodEnd: new Date(subscription.current_period_end * 1000),
-      canceledDate: new Date(subscription.current_period_end * 1000),
-      // cancelRequest: true,
-    });
+    const usersCollectionRef = collection(db, "users");
+    const stripeCustomerId = subscription.customer;
+    const q = query(usersCollectionRef, where("stripeCustomerId", "==", stripeCustomerId));
+    const querySnapshot = await getDocs(q);
+
+    if (!querySnapshot.empty) {
+      querySnapshot.forEach(async (doc) => {
+        const userDocRef = doc.ref;
+        
+        await updateDoc(userDocRef, {
+          stripePriceId: subscription.items.data[0].price.id,
+          stripeCurrentPeriodEnd: new Date(subscription.current_period_end * 1000),
+          // canceledDate: new Date(subscription.current_period_end * 1000),
+          // cancelRequest: true,
+        });
+      });
+    } else {
+      console.log("No matching documents.");
+    }
+    // await updateDoc(userDocRef, {
+    //   stripePriceId: subscription.items.data[0].price.id,
+    //   stripeCurrentPeriodEnd: new Date(subscription.current_period_end * 1000),
+    //   canceledDate: new Date(subscription.current_period_end * 1000),
+    //   // cancelRequest: true,
+    // });
   }
 
   return new Response(null, { status: 200 });

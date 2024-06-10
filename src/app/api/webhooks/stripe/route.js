@@ -26,7 +26,7 @@ export async function POST(request) {
 
   if (!session?.metadata?.userId) {
     return new Response(null, {
-      status: 200,
+      status: 700,
     });
   }
   const userDocRef = doc(db, "users", session?.metadata?.userId);

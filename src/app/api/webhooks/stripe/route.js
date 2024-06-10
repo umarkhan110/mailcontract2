@@ -120,7 +120,7 @@ export async function POST(request) {
       });
     } catch (error) {
       console.error("Error handling subscription update: ", error);
-      return new Response("Error updating user document: ", { status: 200 })
+      return new Response(error, { status: 200 })
     }
   }
   

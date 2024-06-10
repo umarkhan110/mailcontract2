@@ -124,6 +124,6 @@ export async function POST(request) {
     // });
   }
 
-  return new Response(querySnapshot, { status: 200 });
+  return new Response("querySnapshot", { status: 200 });
 }
 

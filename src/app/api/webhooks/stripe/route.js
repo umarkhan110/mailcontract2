@@ -95,34 +95,35 @@ export async function POST(request) {
   // }
 
   if (event.type === "customer.subscription.updated") {
-    const subscription = await stripe.subscriptions.retrieve(
-      session.subscription
-    );
-
-    const usersCollectionRef = collection(db, "users");
-    const stripeCustomerId = subscription.customer;
-    const q = query(usersCollectionRef, where("stripeCustomerId", "==", stripeCustomerId));
-    const querySnapshot = await getDocs(q);
-
+    try {
+      const subscription = await stripe.subscriptions.retrieve(
+        session.subscription
+      );
+  
+      const usersCollectionRef = collection(db, "users");
+      const stripeCustomerId = subscription.customer;
+      const q = query(usersCollectionRef, where("stripeCustomerId", "==", stripeCustomerId));
+      const querySnapshot = await getDocs(q);
   
       querySnapshot.forEach(async (doc) => {
         const userDocRef = doc.ref;
         
-        await updateDoc(userDocRef, {
-          stripePriceId: subscription.items.data[0].price.id,
-          stripeCurrentPeriodEnd: new Date(subscription.current_period_end * 1000),
-          // canceledDate: new Date(subscription.current_period_end * 1000),
-          // cancelRequest: true,
-        });
+        try {
+          await updateDoc(userDocRef, {
+            stripePriceId: subscription.items.data[0].price.id,
+            stripeCurrentPeriodEnd: new Date(subscription.current_period_end * 1000),
+          });
+        } catch (updateError) {
+          console.error("Error updating user document: ", updateError);
+          return new Response("Error updating user document: ", { status: 200 })
+        }
       });
-   
-    // await updateDoc(userDocRef, {
-    //   stripePriceId: subscription.items.data[0].price.id,
-    //   stripeCurrentPeriodEnd: new Date(subscription.current_period_end * 1000),
-    //   canceledDate: new Date(subscription.current_period_end * 1000),
-    //   // cancelRequest: true,
-    // });
+    } catch (error) {
+      console.error("Error handling subscription update: ", error);
+      return new Response("Error updating user document: ", { status: 200 })
+    }
   }
+  
 
   return new Response("querySnapshot", { status: 200 });
 }

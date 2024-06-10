@@ -115,7 +115,7 @@ export async function POST(request) {
           });
         } catch (updateError) {
           console.error("Error updating user document: ", updateError);
-          return new Response("Error updating user document: ", { status: 200 })
+          return new Response(subscription, { status: 200 })
         }
       });
     } catch (error) {

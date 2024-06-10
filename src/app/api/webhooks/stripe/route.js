@@ -1,5 +1,5 @@
 import { db } from "@/app/firebase/config";
-import { collection, doc, updateDoc } from "firebase/firestore";
+import { collection, doc, getDocs, query, updateDoc, where } from "firebase/firestore";
 import { headers } from "next/headers";
 const stripe = require("stripe")(process.env.NEXT_PUBLIC_STRIPE_SERVER_KEY);
 export async function POST(request) {

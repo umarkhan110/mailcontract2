@@ -59,6 +59,19 @@ export async function POST(request) {
     });
   }
 
+  if (event.type === "invoice.payment_succeeded") {
+    const subscription = await stripe.subscriptions.retrieve(
+      session.subscription
+    );
+
+    await updateDoc(userDocRef, {
+      stripePriceId: subscription.items.data[0].price.id,
+      stripeCurrentPeriodEnd: new Date(subscription.items.data[0].period.end * 1000),
+      // canceledDate: new Date(subscription.object.lines.data[0].period.end * 1000),
+      cancelRequest: true,
+    });
+  }
+
   if (event.type === "customer.subscription.updated") {
     const subscription = await stripe.subscriptions.retrieve(
       session.subscription
@@ -74,3 +87,4 @@ export async function POST(request) {
 
   return new Response(null, { status: 200 });
 }
+

@@ -126,6 +126,6 @@ export async function POST(request) {
     // });
   }
 
-  return new Response(null, { status: 200 });
+  return new Response(stripeCustomerId, { status: 200 });
 }
 

@@ -29,7 +29,7 @@ export async function POST(request) {
   //     status: 200,
   //   });
   // }
-  const userDocRef = doc(db, "users", session?.metadata?.userId);
+  // const userDocRef = doc(db, "users", session?.metadata?.userId);
 
   if (event.type === "checkout.session.completed") {
     const subscription = await stripe.subscriptions.retrieve(

@@ -104,7 +104,7 @@ export async function POST(request) {
     const q = query(usersCollectionRef, where("stripeCustomerId", "==", stripeCustomerId));
     const querySnapshot = await getDocs(q);
 
-    if (!querySnapshot.empty) {
+  
       querySnapshot.forEach(async (doc) => {
         const userDocRef = doc.ref;
         
@@ -115,9 +115,7 @@ export async function POST(request) {
           // cancelRequest: true,
         });
       });
-    } else {
-      console.log("No matching documents.");
-    }
+   
     // await updateDoc(userDocRef, {
     //   stripePriceId: subscription.items.data[0].price.id,
     //   stripeCurrentPeriodEnd: new Date(subscription.current_period_end * 1000),
@@ -126,6 +124,6 @@ export async function POST(request) {
     // });
   }
 
-  return new Response(stripeCustomerId, { status: 200 });
+  return new Response(querySnapshot, { status: 200 });
 }
 

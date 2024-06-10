@@ -96,12 +96,12 @@ export async function POST(request) {
 
   if (event.type === "customer.subscription.updated") {
     try {
-      const subscription = await stripe.subscriptions.retrieve(
-        session.subscription
-      );
+      // const subscription = await stripe.subscriptions.retrieve(
+      //   session.subscription
+      // );
   
       const usersCollectionRef = collection(db, "users");
-      const stripeCustomerId = subscription.customer;
+      const stripeCustomerId = session.customer;
       const q = query(usersCollectionRef, where("stripeCustomerId", "==", stripeCustomerId));
       const querySnapshot = await getDocs(q);
   
@@ -115,7 +115,7 @@ export async function POST(request) {
           });
         } catch (updateError) {
           console.error("Error updating user document: ", updateError);
-          return new Response(subscription, { status: 200 })
+          return new Response(updateError, { status: 200 })
         }
       });
     } catch (error) {
